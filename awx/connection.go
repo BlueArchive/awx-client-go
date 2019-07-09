@@ -272,6 +272,12 @@ func (c *Connection) JobTemplates() *JobTemplatesResource {
 	return NewJobTemplatesResource(c, "job_templates")
 }
 
+// WorkflowJobTemplates returns a reference to the resource that manages the collection of job templates.
+//
+func (c *Connection) WorkflowJobTemplates() *WorkflowJobTemplatesResource {
+	return NewWorkflowJobTemplatesResource(c, "workflow_job_templates")
+}
+
 // Projects returns a reference to the resource that manages the collection of projects.
 //
 func (c *Connection) Projects() *ProjectsResource {
