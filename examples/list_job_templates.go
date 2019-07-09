@@ -33,7 +33,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/moolitayer/awx-client-go/awx"
+	"github.com/bluearchive/awx-client-go/awx"
 )
 
 var (
