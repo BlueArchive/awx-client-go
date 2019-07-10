@@ -13,5 +13,5 @@ type WorkflowJobTemplateLaunchPostRequest struct {
 }
 
 type WorkflowJobTemplateLaunchPostResponse struct {
-	Job int `json:"job,omitempty"`
+	Job int `json:"workflow_job,omitempty"`
 }
