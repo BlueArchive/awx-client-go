@@ -28,13 +28,14 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/golang/glog"
+	"github.com/bluearchive/main/logging"
 	"github.com/bluearchive/awx-client-go/awx/internal/data"
 )
 
 // Version is the version of the client.
 //
 const Version = "0.0.0"
+
 
 type ConnectionBuilder struct {
 	url      string
@@ -45,6 +46,7 @@ type ConnectionBuilder struct {
 	token    string
 	bearer   string
 	insecure bool
+	logger   logging.Log
 
 	// Trusted CA certificates can be loaded from slices of bytes or from files:
 	caCerts [][]byte
@@ -61,6 +63,7 @@ type Connection struct {
 	// AWX had two implementations for authentication tokens
 	token  string // using the /authtoken endpoint, used in tower < 3.3
 	bearer string // an OAuth2 implementation, used since tower 3.3
+	logger   logging.Log
 
 	// The underlying HTTP client:
 	client *http.Client
@@ -139,6 +142,11 @@ func (b *ConnectionBuilder) CAFile(file string) *ConnectionBuilder {
 	if file != "" {
 		b.caFiles = append(b.caFiles, file)
 	}
+	return b
+}
+
+func (b *ConnectionBuilder) Logger(logger logging.Logger) *ConnectionBuilder {
+	b.logger = logger
 	return b
 }
 
@@ -246,6 +254,12 @@ func (b *ConnectionBuilder) Build() (c *Connection, err error) {
 
 	// Allocate the connection and save all the objects that will be required later:
 	c = new(Connection)
+	if b.logger != nil {
+		c.logger = b.logger
+	} else {
+
+	}
+
 	c.base = b.url
 	c.username = b.username
 	c.password = b.password
@@ -323,8 +337,8 @@ func (c *Connection) OAuth2Supported() bool {
 }
 
 func (c *Connection) getAuthToken() error {
-	if glog.V(2) {
-		glog.Infoln("Requesting Authtoken")
+	if c.logger {
+		c.logger.Info("Requesting Authtoken")
 	}
 	var request data.AuthTokenPostRequest
 	var response data.AuthTokenPostResponse
@@ -342,8 +356,8 @@ func (c *Connection) getAuthToken() error {
 }
 
 func (c *Connection) getPATToken() error {
-	if glog.V(2) {
-		glog.Infoln("Requesting OAuth2 PAT Token")
+	if c.logger {
+		c.logger.Info("Requesting OAuth2 PAT Token")
 	}
 	var request data.PATPostRequest
 	var response data.PATPostResponse
@@ -421,11 +435,11 @@ func (c *Connection) rawHead(path, prefix string) (err error) {
 	c.setAgent(request)
 	c.setCredentials(request)
 	c.setAccept(request)
-	if glog.V(2) {
-		glog.Infof("Sending HEAD request to '%s'.", address)
-		glog.Info("Request headers:\n")
+	if c.logger {
+		c.logger.Infof("Sending HEAD request to '%s'.", address)
+		c.logger.Info("Request headers:\n")
 		for key, val := range request.Header {
-			glog.Infof("	%s: %v", key, val)
+			c.logger.Infof("	%s: %v", key, val)
 		}
 	}
 	response, err := c.client.Do(request)
@@ -452,13 +466,11 @@ func (c *Connection) rawGet(path string, query url.Values) (output []byte, err e
 	c.setAgent(request)
 	c.setCredentials(request)
 	c.setAccept(request)
-	if glog.V(2) {
-		glog.Infof("Sending GET request to '%s'.", address)
-	}
-	if glog.V(3) {
-		glog.Info("Request headers:\n")
+	if c.logger {
+		c.logger.Debugf("Sending GET request to '%s'.", address)
+		c.logger.Debug("Request headers:\n")
 		for key, val := range request.Header {
-			glog.Infof("	%s: %v", key, filterHeader(key, val))
+			c.logger.Debug("	%s: %v", key, filterHeader(key, val))
 		}
 	}
 	response, err := c.client.Do(request)
@@ -473,11 +485,11 @@ func (c *Connection) rawGet(path string, query url.Values) (output []byte, err e
 	if err != nil {
 		return
 	}
-	if glog.V(3) {
-		glog.Infof("Response body:\n%s", c.indent(filterJsonBytes(output)))
-		glog.Info("Response headers:")
+	if c.logger {
+		c.logger.Debugf("Response body:\n%s", c.indent(filterJsonBytes(output)))
+		c.logger.Debugf("Response headers:")
 		for key, val := range response.Header {
-			glog.Infof("	%s: %v", key, filterHeader(key, val))
+			c.logger.Debugf("	%s: %v", key, filterHeader(key, val))
 		}
 
 	}
@@ -524,14 +536,12 @@ func (c *Connection) rawPost(path string, query url.Values, input []byte) (outpu
 	c.setCredentials(request)
 	c.setContentType(request)
 	c.setAccept(request)
-	if glog.V(2) {
-		glog.Infof("Sending POST request to '%s'.", address)
-	}
-	if glog.V(3) {
-		glog.Infof("Request body:\n%s", c.indent(filterJsonBytes(input)))
-		glog.Infof("Request headers:")
+	if c.logger {
+		c.logger.Debugf("Sending POST request to '%s'.", address)
+		c.logger.Debugf("Request body:\n%s", c.indent(filterJsonBytes(input)))
+		c.logger.Debugf("Request headers:")
 		for key, val := range request.Header {
-			glog.Infof("	%s: %v", key, filterHeader(key, val))
+			c.logger.Debug("	%s: %v", key, filterHeader(key, val))
 		}
 	}
 	response, err := c.client.Do(request)
@@ -546,11 +556,11 @@ func (c *Connection) rawPost(path string, query url.Values, input []byte) (outpu
 	if err != nil {
 		return
 	}
-	if glog.V(3) {
-		glog.Infof("Response body:\n%s", c.indent(filterJsonBytes(output)))
-		glog.Info("Response headers:")
+	if c.logger {
+		c.logger.Debugf("Response body:\n%s", c.indent(filterJsonBytes(output)))
+		c.logger.Debugf("Response headers:")
 		for key, val := range response.Header {
-			glog.Infof("	%s: %v", key, val)
+			c.logger.Debugf("	%s: %v", key, val)
 		}
 	}
 	if response.StatusCode > 202 {
@@ -604,13 +614,17 @@ func filterJsonBytes(bytes []byte) []byte {
 	var jsonObj interface{}
 	err := json.Unmarshal(bytes, &jsonObj)
 	if err != nil {
-		glog.Warningf("Error parsing: %v", err)
+		if c.logger {
+			c.logger.Warningf("Error parsing: %v", err)
+		}
 		return []byte{}
 	}
 	jsonObj = filterJsonObject(jsonObj)
 	ret, err := json.Marshal(jsonObj)
 	if err != nil {
-		glog.Warningf("Error encoding: %v", err)
+		if c.logger {
+			c.logger.Warningf("Error encoding: %v", err)
+		}
 		return []byte{}
 	}
 	return ret
