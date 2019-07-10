@@ -337,7 +337,7 @@ func (c *Connection) OAuth2Supported() bool {
 }
 
 func (c *Connection) getAuthToken() error {
-	if c.logger {
+	if c.logger != nil {
 		c.logger.Info("Requesting Authtoken")
 	}
 	var request data.AuthTokenPostRequest
@@ -356,7 +356,7 @@ func (c *Connection) getAuthToken() error {
 }
 
 func (c *Connection) getPATToken() error {
-	if c.logger {
+	if c.logger != nil {
 		c.logger.Info("Requesting OAuth2 PAT Token")
 	}
 	var request data.PATPostRequest
@@ -435,7 +435,7 @@ func (c *Connection) rawHead(path, prefix string) (err error) {
 	c.setAgent(request)
 	c.setCredentials(request)
 	c.setAccept(request)
-	if c.logger {
+	if c.logger != nil {
 		c.logger.Infof("Sending HEAD request to '%s'.", address)
 		c.logger.Info("Request headers:\n")
 		for key, val := range request.Header {
@@ -466,7 +466,7 @@ func (c *Connection) rawGet(path string, query url.Values) (output []byte, err e
 	c.setAgent(request)
 	c.setCredentials(request)
 	c.setAccept(request)
-	if c.logger {
+	if c.logger != nil {
 		c.logger.Debugf("Sending GET request to '%s'.", address)
 		c.logger.Debug("Request headers:\n")
 		for key, val := range request.Header {
@@ -485,7 +485,7 @@ func (c *Connection) rawGet(path string, query url.Values) (output []byte, err e
 	if err != nil {
 		return
 	}
-	if c.logger {
+	if c.logger != nil {
 		c.logger.Debugf("Response body:\n%s", c.indent(filterJsonBytes(output)))
 		c.logger.Debugf("Response headers:")
 		for key, val := range response.Header {
@@ -536,7 +536,7 @@ func (c *Connection) rawPost(path string, query url.Values, input []byte) (outpu
 	c.setCredentials(request)
 	c.setContentType(request)
 	c.setAccept(request)
-	if c.logger {
+	if c.logger != nil {
 		c.logger.Debugf("Sending POST request to '%s'.", address)
 		c.logger.Debugf("Request body:\n%s", c.indent(filterJsonBytes(input)))
 		c.logger.Debugf("Request headers:")
@@ -556,7 +556,7 @@ func (c *Connection) rawPost(path string, query url.Values, input []byte) (outpu
 	if err != nil {
 		return
 	}
-	if c.logger {
+	if c.logger != nil {
 		c.logger.Debugf("Response body:\n%s", c.indent(filterJsonBytes(output)))
 		c.logger.Debugf("Response headers:")
 		for key, val := range response.Header {
@@ -614,7 +614,7 @@ func filterJsonBytes(bytes []byte) []byte {
 	var jsonObj interface{}
 	err := json.Unmarshal(bytes, &jsonObj)
 	if err != nil {
-		if c.logger {
+		if c.logger != nil {
 			c.logger.Warningf("Error parsing: %v", err)
 		}
 		return []byte{}
@@ -622,7 +622,7 @@ func filterJsonBytes(bytes []byte) []byte {
 	jsonObj = filterJsonObject(jsonObj)
 	ret, err := json.Marshal(jsonObj)
 	if err != nil {
-		if c.logger {
+		if c.logger != nil {
 			c.logger.Warningf("Error encoding: %v", err)
 		}
 		return []byte{}
