@@ -79,7 +79,7 @@ type WorkflowJobTemplateLaunchPostRequest struct {
 	Request
 
 	extraVars map[string]interface{}
-	limit     string
+	inventory string
 }
 
 // ExtraVars set a map or external variables sent to the AWX job.
@@ -97,9 +97,8 @@ func (r *WorkflowJobTemplateLaunchPostRequest) ExtraVar(name string, value inter
 	return r
 }
 
-// Limit allows limiting template execution to specific hosts.
-func (r *WorkflowJobTemplateLaunchPostRequest) Limit(value string) *WorkflowJobTemplateLaunchPostRequest {
-	r.limit = value
+func (r *WorkflowJobTemplateLaunchPostRequest) Inventory(value string) *WorkflowJobTemplateLaunchPostRequest {
+	r.inventory = value
 	return r
 }
 
@@ -117,7 +116,7 @@ func (r *WorkflowJobTemplateLaunchPostRequest) Send() (response *WorkflowJobTemp
 		input.ExtraVars = string(bytes)
 	}
 
-	input.Limit = r.limit
+	input.Inventory = r.inventory
 
 	// Send the request:
 	output := new(data.WorkflowJobTemplateLaunchPostResponse)

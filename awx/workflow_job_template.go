@@ -19,10 +19,10 @@ limitations under the License.
 package awx
 
 type WorkflowJobTemplate struct {
-	id               int
-	name             string
+	id                   int
+	name                 string
 	askInventoryOnLaunch bool
-	askVarsOnLaunch  bool
+	askVarsOnLaunch      bool
 }
 
 func (t *WorkflowJobTemplate) Id() int {

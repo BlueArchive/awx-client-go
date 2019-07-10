@@ -9,7 +9,7 @@ type WorkflowJobTemplateLaunchGetResponse struct {
 
 type WorkflowJobTemplateLaunchPostRequest struct {
 	ExtraVars string `json:"extra_vars,omitempty"`
-	Limit     string `json:"limit,omitempty"`
+	Inventory string `json:"inventory,omitempty"`
 }
 
 type WorkflowJobTemplateLaunchPostResponse struct {
