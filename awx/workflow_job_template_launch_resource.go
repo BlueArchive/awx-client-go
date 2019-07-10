@@ -127,11 +127,11 @@ func (r *WorkflowJobTemplateLaunchPostRequest) Send() (response *WorkflowJobTemp
 
 	// Analyze the output data:
 	response = new(WorkflowJobTemplateLaunchPostResponse)
-	response.Job = output.Job
+	response.Job = output.WorkflowJob
 
 	return
 }
 
 type WorkflowJobTemplateLaunchPostResponse struct {
-	Job int
+	WorkflowJob int
 }
