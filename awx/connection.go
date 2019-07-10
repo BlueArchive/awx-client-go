@@ -614,17 +614,13 @@ func filterJsonBytes(bytes []byte) []byte {
 	var jsonObj interface{}
 	err := json.Unmarshal(bytes, &jsonObj)
 	if err != nil {
-		if c.logger != nil {
-			c.logger.Warningf("Error parsing: %v", err)
-		}
+		fmt.Printf("Error parsing: %v", err)
 		return []byte{}
 	}
 	jsonObj = filterJsonObject(jsonObj)
 	ret, err := json.Marshal(jsonObj)
 	if err != nil {
-		if c.logger != nil {
-			c.logger.Warningf("Error encoding: %v", err)
-		}
+		fmt.Printf("Error encoding: %v", err)
 		return []byte{}
 	}
 	return ret
