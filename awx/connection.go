@@ -46,7 +46,7 @@ type ConnectionBuilder struct {
 	token    string
 	bearer   string
 	insecure bool
-	logger   logging.Logger
+	logger   *logging.Logger
 
 	// Trusted CA certificates can be loaded from slices of bytes or from files:
 	caCerts [][]byte
@@ -63,7 +63,7 @@ type Connection struct {
 	// AWX had two implementations for authentication tokens
 	token  string // using the /authtoken endpoint, used in tower < 3.3
 	bearer string // an OAuth2 implementation, used since tower 3.3
-	logger   logging.Logger
+	logger   *logging.Logger
 
 	// The underlying HTTP client:
 	client *http.Client
@@ -145,7 +145,7 @@ func (b *ConnectionBuilder) CAFile(file string) *ConnectionBuilder {
 	return b
 }
 
-func (b *ConnectionBuilder) Logger(logger logging.Logger) *ConnectionBuilder {
+func (b *ConnectionBuilder) Logger(logger *logging.Logger) *ConnectionBuilder {
 	b.logger = logger
 	return b
 }
